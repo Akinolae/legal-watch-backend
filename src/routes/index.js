@@ -7,6 +7,8 @@ const {
   cognitoSignIn,
   confirmUserSignUp,
   getUserDetails,
+  confirmForgotPassword,
+  forgotPassword,
 } = require("../../lib/aws");
 const { preparedData } = require("../utils");
 
@@ -110,5 +112,59 @@ router.post(`/confirmEmail`, async (req, res) => {
     });
   }
 });
+
+router.post(`/forgotPassword`, async (req, res) => {
+  const { body } = req;
+  if (!body.email) {
+    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+      success: false,
+      message: "Email is required",
+    });
+    return;
+  }
+  try {
+    await forgotPassword({
+      email: body.email,
+    });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Verification code sent to provided email",
+    });
+  } catch (error) {
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router.post(`/changePassword`, async (req, res) => {
+  const { body } = req;
+  if (!body.email || !body.password || !body.code) {
+    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
+      success: false,
+      message: "All fields are required",
+    });
+    return;
+  }
+  try {
+    await confirmForgotPassword({
+      ...body,
+    });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    res.status(StatusCodes.UNAUTHORIZED).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+router;
 
 module.exports = router;
