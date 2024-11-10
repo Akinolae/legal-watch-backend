@@ -10,7 +10,7 @@ app.use("/Api/v1", require("./routes/index"));
 
 app.use((req, res) => {
   const msg = "page not found";
-  response(msg, "error", 404, res);
+  res(msg, "error", 404, res);
 });
 
 app.listen(process.env.PORT ?? 3000, () => {
